@@ -1,5 +1,6 @@
 import { Reorder, useDragControls } from 'motion/react';
-import { forwardRef, useRef, useState } from 'react';
+import { forwardRef, useCallback, useRef, useState } from 'react';
+import { MAX_TODO_LENGTH } from '../lib/todoText';
 import type { Todo } from '../types';
 import { Checkbox } from './Checkbox';
 import { GripIcon, PencilIcon, TrashIcon } from './icons';
@@ -23,6 +24,13 @@ export const TodoItem = forwardRef<HTMLLIElement, Props>(function TodoItem(
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(todo.text);
   const skipBlur = useRef(false);
+  const textRef = useRef<HTMLButtonElement>(null);
+  const focusEditor = useCallback((node: HTMLInputElement | null) => { node?.focus(); }, []);
+
+  const finishEdit = (restoreFocus: boolean) => {
+    setEditing(false);
+    if (restoreFocus) window.requestAnimationFrame(() => textRef.current?.focus());
+  };
 
   const startEdit = () => {
     setDraft(todo.text);
@@ -30,17 +38,17 @@ export const TodoItem = forwardRef<HTMLLIElement, Props>(function TodoItem(
     setEditing(true);
   };
 
-  const commit = () => {
+  const commit = (restoreFocus = false) => {
     if (skipBlur.current) return;
     skipBlur.current = true;
     const value = draft.trim();
     if (value && value !== todo.text) onEdit(todo.id, value);
-    setEditing(false);
+    finishEdit(restoreFocus);
   };
 
   const cancel = () => {
     skipBlur.current = true;
-    setEditing(false);
+    finishEdit(true);
   };
 
   const className = ['todo', todo.done && 'is-done', dragging && 'is-dragging', editing && 'is-editing']
@@ -92,30 +100,33 @@ export const TodoItem = forwardRef<HTMLLIElement, Props>(function TodoItem(
       <div className="todo__body">
         {editing ? (
           <input
+            ref={focusEditor}
             className="todo__edit"
             value={draft}
-            maxLength={200}
-            autoFocus
+            maxLength={MAX_TODO_LENGTH}
             aria-label="Текст задачи"
             onFocus={(event) => event.currentTarget.select()}
             onChange={(event) => setDraft(event.target.value)}
-            onBlur={commit}
+            onBlur={() => commit()}
             onKeyDown={(event) => {
-              if (event.key === 'Enter') commit();
+              if (event.key === 'Enter' && !event.nativeEvent.isComposing) commit(true);
               if (event.key === 'Escape') cancel();
             }}
           />
         ) : (
-          <p
+          <button
+            ref={textRef}
+            type="button"
             className="todo__text"
+            aria-label={`Редактировать задачу: ${todo.text}`}
             onDoubleClick={startEdit}
-            onClick={() => {
-              // На сенсорном экране двойного клика нет — правим по одному нажатию
-              if (window.matchMedia('(hover: none)').matches) startEdit();
+            onClick={(event) => {
+              // Нативная кнопка поддерживает Enter, пробел и экранные дикторы.
+              if (event.detail === 0 || window.matchMedia('(hover: none)').matches) startEdit();
             }}
           >
             <span className="todo__label">{todo.text}</span>
-          </p>
+          </button>
         )}
       </div>
 

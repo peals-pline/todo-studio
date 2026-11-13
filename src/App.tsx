@@ -30,7 +30,7 @@ const spring = { type: 'spring', stiffness: 520, damping: 40 } as const;
 const order = (i: number) => ({ '--i': i }) as CSSProperties;
 
 export default function App() {
-  const { todos, undo, add, toggle, edit, remove, clearDone, reorder, applyUndo, dismissUndo } = useTodos();
+  const { todos, undo, storageError, add, toggle, edit, remove, clearDone, reorder, applyUndo, dismissUndo } = useTodos();
   const { theme, setTheme } = useTheme();
   const { layout, setLayout } = useLayout();
   const [filter, setFilter] = useState<Filter>('all');
@@ -98,6 +98,11 @@ export default function App() {
     <>
       <div className="rise" style={order(first)}>
         <AddTodo value={draft} onValueChange={setDraft} onAdd={addTodo} />
+        {storageError && (
+          <p className="storage-warning" role="status">
+            Не удалось сохранить задачи в браузере. Не закрывайте вкладку: после обновления изменения могут потеряться.
+          </p>
+        )}
       </div>
 
       <div className="rise" style={order(first + 1)}>

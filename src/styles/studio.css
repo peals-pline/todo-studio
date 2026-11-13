@@ -76,8 +76,10 @@
 /* ───────── Сетка ───────── */
 
 .app--studio {
+  --app-gutter: clamp(16px, 3vw, 44px);
+  --app-top: 24px;
   max-width: 1400px;
-  padding: 24px clamp(16px, 3vw, 44px) 40px;
+  padding: var(--app-top) var(--app-gutter) 40px;
 }
 
 .app--studio .topbar {
@@ -425,6 +427,21 @@
 /* ───────── Телефон ───────── */
 
 @media (max-width: 680px) {
+  html {
+    scroll-padding-top: calc(80px + env(safe-area-inset-top));
+  }
+
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    margin-top: calc(-1 * var(--app-top));
+    margin-inline: calc(-1 * var(--app-gutter));
+    padding: calc(12px + env(safe-area-inset-top)) var(--app-gutter) 12px;
+    background: var(--bg);
+    border-bottom: 1px solid var(--line);
+  }
+
   .studio__side {
     grid-template-columns: 1fr 1fr;
     gap: 12px;

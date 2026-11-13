@@ -54,9 +54,11 @@ h1 {
 /* ───────── Каркас страницы ───────── */
 
 .app {
+  --app-gutter: 20px;
+  --app-top: 28px;
   max-width: 640px;
   margin: 0 auto;
-  padding: 28px 20px 40px;
+  padding: var(--app-top) var(--app-gutter) 40px;
 }
 
 .rise {
@@ -247,6 +249,12 @@ h1 {
   cursor: default;
 }
 
+.storage-warning {
+  margin: 12px 6px 0;
+  color: var(--danger);
+  font-size: 14px;
+}
+
 /* ───────── Фильтры ───────── */
 
 .filters {
@@ -415,6 +423,9 @@ h1 {
 }
 
 .todo__text {
+  display: block;
+  width: 100%;
+  text-align: left;
   padding: 3px 0;
   font-family: inherit;
   font-size: 16.5px;
@@ -522,9 +533,6 @@ h1 {
     opacity: 1;
   }
 
-  .todo__edit-btn {
-    display: none;
-  }
 }
 
 /* ───────── Пустое состояние, подвал ───────── */
@@ -674,7 +682,9 @@ h1 {
 
 @media (max-width: 480px) {
   .app {
-    padding: 20px 16px 32px;
+    --app-gutter: 16px;
+    --app-top: 20px;
+    padding: var(--app-top) var(--app-gutter) 32px;
   }
 
   .topbar {

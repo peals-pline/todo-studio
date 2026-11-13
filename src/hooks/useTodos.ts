@@ -1,8 +1,7 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createId, loadTodos, saveTodos, TODOS_KEY } from '../lib/storage';
+import { normalizeTodoText } from '../lib/todoText';
 import type { Todo, Undo } from '../types';
-
-const MAX_LENGTH = 200;
 
 /** Примеры для первого запуска — заодно подсказывают, что умеет список. */
 function seed(): Todo[] {
@@ -15,22 +14,23 @@ function seed(): Todo[] {
   ].map((item, i) => ({ ...item, id: createId(), createdAt: now - i }));
 }
 
-function normalize(text: string): string {
-  return text.replace(/\s+/g, ' ').trim().slice(0, MAX_LENGTH);
-}
-
 export function useTodos() {
   const [todos, setTodos] = useState<Todo[]>(() => loadTodos() ?? seed());
   const [undo, setUndo] = useState<Undo | null>(null);
+  const [storageError, setStorageError] = useState(false);
 
   const todosRef = useRef(todos);
-  todosRef.current = todos;
   const undoRef = useRef(undo);
-  undoRef.current = undo;
+  useLayoutEffect(() => {
+    todosRef.current = todos;
+    undoRef.current = undo;
+  }, [todos, undo]);
 
   // Сохраняем при каждом изменении
   useEffect(() => {
-    saveTodos(todos);
+    // Статус отражает результат синхронизации с внешним хранилищем.
+    // oxlint-disable-next-line react/set-state-in-effect
+    setStorageError(!saveTodos(todos));
   }, [todos]);
 
   // Подхватываем изменения из соседней вкладки
@@ -45,7 +45,7 @@ export function useTodos() {
   }, []);
 
   const add = useCallback((text: string): boolean => {
-    const value = normalize(text);
+    const value = normalizeTodoText(text);
     if (!value) return false;
     setTodos((prev) => [{ id: createId(), text: value, done: false, createdAt: Date.now() }, ...prev]);
     return true;
@@ -56,7 +56,7 @@ export function useTodos() {
   }, []);
 
   const edit = useCallback((id: string, text: string) => {
-    const value = normalize(text);
+    const value = normalizeTodoText(text);
     if (!value) return;
     setTodos((prev) => prev.map((t) => (t.id === id ? { ...t, text: value } : t)));
   }, []);
@@ -114,5 +114,5 @@ export function useTodos() {
 
   const dismissUndo = useCallback(() => setUndo(null), []);
 
-  return { todos, undo, add, toggle, edit, remove, clearDone, reorder, applyUndo, dismissUndo };
+  return { todos, undo, storageError, add, toggle, edit, remove, clearDone, reorder, applyUndo, dismissUndo };
 }

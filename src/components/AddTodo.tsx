@@ -1,5 +1,6 @@
 import { motion } from 'motion/react';
 import { useRef, type FormEvent } from 'react';
+import { MAX_TODO_LENGTH } from '../lib/todoText';
 import { PlusIcon } from './icons';
 
 type Props = {
@@ -24,7 +25,7 @@ export function AddTodo({ value, onValueChange, onAdd }: Props) {
         ref={inputRef}
         className="add__input"
         value={value}
-        maxLength={200}
+        maxLength={MAX_TODO_LENGTH}
         placeholder="Что нужно сделать?"
         aria-label="Новая задача"
         autoComplete="off"

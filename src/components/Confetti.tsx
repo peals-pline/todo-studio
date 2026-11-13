@@ -9,28 +9,34 @@ const COLORS = ['var(--accent)', '#ffb547', '#ff6f91', '#4fd1a5', 'var(--text)']
 const PIECES = 34;
 const LIFETIME_MS = 1900;
 
+/** Детерминированный разброс: новый залп меняет рисунок без случайности в render. */
+function noise(seed: number): number {
+  const value = Math.sin(seed * 12.9898) * 43758.5453;
+  return value - Math.floor(value);
+}
+
 /** Небольшой салют, когда закрыта последняя задача. */
 export function Confetti({ burst }: Props) {
-  const [visible, setVisible] = useState(false);
+  const [finishedBurst, setFinishedBurst] = useState(0);
 
   useEffect(() => {
     if (burst === 0) return;
-    setVisible(true);
-    const timer = window.setTimeout(() => setVisible(false), LIFETIME_MS);
+    const timer = window.setTimeout(() => setFinishedBurst(burst), LIFETIME_MS);
     return () => window.clearTimeout(timer);
   }, [burst]);
 
   const pieces = useMemo(
     () =>
       Array.from({ length: PIECES }, (_, i) => {
-        const angle = (i / PIECES) * Math.PI * 2 + Math.random() * 0.4;
-        const distance = 140 + Math.random() * 220;
+        const seed = burst * PIECES + i;
+        const angle = (i / PIECES) * Math.PI * 2 + noise(seed + 1) * 0.4;
+        const distance = 140 + noise(seed + 101) * 220;
         return {
           '--x': `${Math.cos(angle) * distance}px`,
           '--up': `${Math.sin(angle) * distance * 0.7 - 120}px`,
           '--down': `${Math.sin(angle) * distance * 0.7 + 260}px`,
-          '--r': `${Math.random() * 720 - 360}deg`,
-          '--d': `${Math.random() * 90}ms`,
+          '--r': `${noise(seed + 201) * 720 - 360}deg`,
+          '--d': `${noise(seed + 301) * 90}ms`,
           '--c': COLORS[i % COLORS.length],
         } as CSSProperties;
       }),
@@ -38,7 +44,7 @@ export function Confetti({ burst }: Props) {
     [burst],
   );
 
-  if (!visible) return null;
+  if (burst === 0 || burst === finishedBurst) return null;
 
   return (
     <div className="confetti" aria-hidden>
