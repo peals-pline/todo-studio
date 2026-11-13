@@ -34,7 +34,15 @@ export default function App() {
   const { theme, setTheme } = useTheme();
   const { layout, setLayout } = useLayout();
   const [filter, setFilter] = useState<Filter>('all');
+  const [draft, setDraft] = useState('');
   const [burst, setBurst] = useState(0);
+
+  const addTodo = useCallback((text: string): boolean => {
+    if (!add(text)) return false;
+    // Новая задача активна: показываем её даже из фильтра выполненных.
+    setFilter((current) => current === 'done' ? 'all' : current);
+    return true;
+  }, [add]);
 
   const doneCount = todos.filter((t) => t.done).length;
   const activeCount = todos.length - doneCount;
@@ -89,7 +97,7 @@ export default function App() {
   const board = (first: number) => (
     <>
       <div className="rise" style={order(first)}>
-        <AddTodo onAdd={add} />
+        <AddTodo value={draft} onValueChange={setDraft} onAdd={addTodo} />
       </div>
 
       <div className="rise" style={order(first + 1)}>

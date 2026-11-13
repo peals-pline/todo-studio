@@ -5,13 +5,13 @@
   "description": "Список задач на React и TypeScript: два стиля, развёрнутый вид «Студия», сохранение в браузере",
   "type": "module",
   "engines": {
-    "node": ">=20"
+    "node": ">=22.12.0"
   },
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "deploy": "npm run build && wrangler pages deploy dist --project-name todo-studio"
+    "deploy": "npm run build && wrangler pages deploy dist --project-name todo-digital"
   },
   "dependencies": {
     "@fontsource-variable/onest": "^5.3.1",

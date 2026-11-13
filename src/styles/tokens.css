@@ -15,8 +15,8 @@
 
   --bg: #f3f5fa;
   --text: #1a2138;
-  --muted: #7f89a3;
-  --faint: #b6bed1;
+  --muted: #606d85;
+  --faint: #626f88;
   --line: rgba(26, 33, 56, 0.08);
 
   --surface: #ffffff;
@@ -62,7 +62,7 @@
   --bg: #0c0d11;
   --text: #f1f2f5;
   --muted: #8a8f9c;
-  --faint: #4d515d;
+  --faint: #7e8492;
   --line: rgba(255, 255, 255, 0.07);
 
   --surface: #15171c;
